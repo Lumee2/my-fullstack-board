@@ -18,7 +18,7 @@ export default function RootLayout({
   return (
     <html lang="zh-CN">
       <body className={inter.className}>
-        <Providers>{children}</Providers> // ✅ 用 Providers 包裹
+        <Providers>{children}</Providers> 
       </body>
     </html>
   );
