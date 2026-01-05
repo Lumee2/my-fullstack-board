@@ -12,6 +12,7 @@ export default function Home() {
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
+  const [error, setError] = useState<string | null>(null); // ✅ 定义 setError
 
   useEffect(() => {
     fetchMessages();
@@ -24,7 +25,7 @@ export default function Home() {
       if (!res.ok) throw new Error(`GET ${res.status}`);
       const data = await res.json();
       setMessages(data);
-    } catch (error: any) {  // ✅ 修复：添加 any 类型
+    } catch (error: any) {
       console.error('Failed to fetch:', error);
       setError(`加载失败: ${error.message}`);
     }
@@ -47,7 +48,7 @@ export default function Home() {
       
       setMessages(prev => [newMessage, ...prev]);
       setInput('');
-    } catch (error: any) {  // ✅ 修复：添加 any 类型
+    } catch (error: any) {
       console.error('Failed to create:', error);
       alert(`发布失败: ${error.message}`);
     }
@@ -72,7 +73,7 @@ export default function Home() {
       }
 
       setMessages(prev => prev.filter(msg => msg.id !== id));
-    } catch (error: any) {  // ✅ 修复：添加 any 类型
+    } catch (error: any) {
       console.error('Delete error:', error);
       alert(`删除失败: ${error.message || '未知错误'}`);
     } finally {
@@ -84,6 +85,14 @@ export default function Home() {
     <div className="p-4 sm:p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">我的留言板</h1>
       
+      {/* 错误提示 */}
+      {error && (
+        <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+          <strong>错误:</strong> {error}
+        </div>
+      )}
+      
+      {/* 发布表单 */}
       <form onSubmit={handleSubmit} className="mb-6">
         <input
           type="text"
@@ -100,6 +109,7 @@ export default function Home() {
         </button>
       </form>
 
+      {/* 留言列表 */}
       <div className="space-y-4">
         {messages.length === 0 ? (
           <p className="text-gray-500">暂无留言</p>
