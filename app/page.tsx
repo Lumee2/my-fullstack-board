@@ -1,16 +1,17 @@
 'use client';
 
-// app/page.tsx 顶部（如果用到 authOptions）
+// ✅ 完整的 import 语句（修正了 useState 未定义错误）
+import { useState, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { authOptions } from './lib/auth'; // 
 
+// ✅ 定义 Message 类型（修正了 user_id 字段名）
 type Message = {
   id: number;
   text: string;
   created_at: string;
   user_name?: string;
   user_image?: string;
-  user_id?: number; // 注意：Neon 返回的是 user_id（下划线）
+  user_id?: number; // 数据库字段名（Neon 返回的是 user_id）
 };
 
 export default function Home() {
@@ -77,7 +78,7 @@ export default function Home() {
     const confirmed = window.confirm('确定要删除这条留言吗？');
     if (!confirmed) return;
 
-    // 检查是否是用户自己的留言
+    // ✅ 检查是否是用户自己的留言（注意 user_id 字段名）
     const message = messages.find(m => m.id === id);
     if (message?.user_id !== (session.user as any).id) {
       alert('只能删除自己的留言');
@@ -106,6 +107,7 @@ export default function Home() {
     }
   }
 
+  // ✅ 处理加载状态（防止 useSession 未初始化）
   if (status === 'loading') {
     return <div className="p-8 text-center">加载中...</div>;
   }
