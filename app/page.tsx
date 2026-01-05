@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { authOptions } from './lib/auth';
 
 type Message = {
   id: number;

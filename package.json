@@ -8,8 +8,10 @@
     "start": "next start"
   },
   "dependencies": {
+    "@auth/pg-adapter": "^1.11.1",
     "@neondatabase/serverless": "^1.0.2",
     "next": "16.1.1",
+    "next-auth": "^4.24.13",
     "react": "19.2.3",
     "react-dom": "19.2.3"
   },
