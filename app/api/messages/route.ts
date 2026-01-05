@@ -26,7 +26,7 @@ export async function GET() {
   }
 }
 
-// POST：创建新留言
+// POST：创建新留言   
 export async function POST(request: Request) {
   try {
     await initDB();
@@ -38,5 +38,23 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('POST error:', error);
     return Response.json({ error: 'Failed to create message' }, { status: 500 });
+  }
+}
+// DELETE：删除留言
+export async function DELETE(request: Request) {
+  try {
+    const { id } = await request.json();
+    
+    if (!id) {
+      return Response.json({ error: 'ID is required' }, { status: 400 });
+    }
+    
+    await initDB();
+    await sql`DELETE FROM messages WHERE id = ${id}`;
+    
+    return Response.json({ success: true });
+  } catch (error) {
+    console.error('DELETE error:', error);
+    return Response.json({ error: 'Failed to delete message' }, { status: 500 });
   }
 }
