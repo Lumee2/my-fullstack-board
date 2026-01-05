@@ -1,13 +1,14 @@
-// app/api/auth/[...nextauth]/route.ts（修正版）
+// app/api/auth/[...nextauth]/route.ts
 import NextAuth from 'next-auth';
 import GitHubProvider from 'next-auth/providers/github';
-import { Pool } from '@neondatabase/serverless';
-import PgAdapter from '@auth/pg-adapter'; 
+import PgAdapter from '@auth/pg-adapter';
+import { Pool } from '@neondatabase/serverless'; // ✅ 导入 Pool
 
+// ✅ 创建 Pool 实例（类型正确）
 const pool = new Pool({ connectionString: process.env.DATABASE_URL! });
 
 const authOptions = {
-  adapter: PgAdapter(pool),
+  adapter: PgAdapter(pool), // ✅ 使用 Pool
   providers: [
     GitHubProvider({
       clientId: process.env.GITHUB_ID!,
