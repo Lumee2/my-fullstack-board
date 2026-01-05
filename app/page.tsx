@@ -1,7 +1,8 @@
 'use client';
 
+// app/page.tsx 顶部（如果用到 authOptions）
 import { useSession, signIn, signOut } from 'next-auth/react';
-import { useState, useEffect } from 'react';
+import { authOptions } from './lib/auth'; // 
 
 type Message = {
   id: number;
