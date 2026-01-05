@@ -3,7 +3,6 @@ import { neon } from '@neondatabase/serverless';
 
 const sql = neon(process.env.DATABASE_URL!);
 
-// 初始化数据库表（如果不存在）
 async function initDB() {
   await sql`
     CREATE TABLE IF NOT EXISTS messages (
@@ -14,7 +13,6 @@ async function initDB() {
   `;
 }
 
-// GET：获取所有留言（按时间倒序）
 export async function GET() {
   try {
     await initDB();
@@ -26,7 +24,6 @@ export async function GET() {
   }
 }
 
-// POST：创建新留言   
 export async function POST(request: Request) {
   try {
     await initDB();
@@ -40,7 +37,8 @@ export async function POST(request: Request) {
     return Response.json({ error: 'Failed to create message' }, { status: 500 });
   }
 }
-// DELETE：删除留言
+
+// ✅ 这里就是第二步的代码（带详细错误日志）
 export async function DELETE(request: Request) {
   try {
     const { id } = await request.json();
@@ -50,11 +48,22 @@ export async function DELETE(request: Request) {
     }
     
     await initDB();
+    
+    // 先检查记录是否存在（方便调试）
+    const check = await sql`SELECT 1 FROM messages WHERE id = ${id}`;
+    if (check.length === 0) {
+      return Response.json({ error: 'Message not found' }, { status: 404 });
+    }
+    
     await sql`DELETE FROM messages WHERE id = ${id}`;
     
     return Response.json({ success: true });
-  } catch (error) {
+  } catch (error: any) {
     console.error('DELETE error:', error);
-    return Response.json({ error: 'Failed to delete message' }, { status: 500 });
+    // 返回详细错误信息
+    return Response.json({ 
+      error: error.message || 'Failed to delete message',
+      details: error.toString() 
+    }, { status: 500 });
   }
 }

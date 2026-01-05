@@ -19,13 +19,14 @@ export default function Home() {
 
   async function fetchMessages() {
     try {
+      setError(null);
       const res = await fetch('/api/messages');
-      if (!res.ok) throw new Error('Failed to fetch');
+      if (!res.ok) throw new Error(`GET ${res.status}`);
       const data = await res.json();
       setMessages(data);
-    } catch (error) {
-      console.error('Failed to fetch messages:', error);
-      alert('加载留言失败');
+    } catch (error: any) {  // ✅ 修复：添加 any 类型
+      console.error('Failed to fetch:', error);
+      setError(`加载失败: ${error.message}`);
     }
   }
 
@@ -34,26 +35,25 @@ export default function Home() {
     if (!input.trim()) return;
 
     try {
+      setError(null);
       const res = await fetch('/api/messages', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: input }),
       });
       
-      if (!res.ok) throw new Error('Failed to create');
+      if (!res.ok) throw new Error(`POST ${res.status}`);
       const newMessage = await res.json();
       
       setMessages(prev => [newMessage, ...prev]);
       setInput('');
-    } catch (error) {
-      console.error('Failed to create message:', error);
-      alert('发布失败，请检查网络');
+    } catch (error: any) {  // ✅ 修复：添加 any 类型
+      console.error('Failed to create:', error);
+      alert(`发布失败: ${error.message}`);
     }
   }
 
-  // 简化删除逻辑：直接使用 confirm()
   async function handleDelete(id: number) {
-    // 兼容所有浏览器的同步确认
     const confirmed = window.confirm('确定要删除这条留言吗？');
     if (!confirmed) return;
 
@@ -72,7 +72,7 @@ export default function Home() {
       }
 
       setMessages(prev => prev.filter(msg => msg.id !== id));
-    } catch (error) {
+    } catch (error: any) {  // ✅ 修复：添加 any 类型
       console.error('Delete error:', error);
       alert(`删除失败: ${error.message || '未知错误'}`);
     } finally {
@@ -84,7 +84,6 @@ export default function Home() {
     <div className="p-4 sm:p-8 max-w-2xl mx-auto">
       <h1 className="text-2xl sm:text-3xl font-bold mb-6">我的留言板</h1>
       
-      {/* 发布表单 */}
       <form onSubmit={handleSubmit} className="mb-6">
         <input
           type="text"
@@ -101,7 +100,6 @@ export default function Home() {
         </button>
       </form>
 
-      {/* 留言列表 */}
       <div className="space-y-4">
         {messages.length === 0 ? (
           <p className="text-gray-500">暂无留言</p>
