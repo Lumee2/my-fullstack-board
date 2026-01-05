@@ -1,7 +1,7 @@
 // app/api/messages/route.ts
 import { neon } from '@neondatabase/serverless';
 import { getServerSession } from 'next-auth';
-import { authOptions } from '../../lib/auth';
+import { authOptions } from '@/app/lib/auth';
 
 const sql = neon(process.env.DATABASE_URL!);
 

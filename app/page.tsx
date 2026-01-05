@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect } from 'react';
 import { useSession, signIn, signOut } from 'next-auth/react';
+import { useState, useEffect } from 'react';
 
 type Message = {
   id: number;
