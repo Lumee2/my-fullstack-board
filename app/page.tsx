@@ -54,32 +54,36 @@ export default function Home() {
     }
   }
 
-  async function handleDelete(id: number) {
-    const confirmed = window.confirm('确定要删除这条留言吗？');
-    if (!confirmed) return;
+async function handleDelete(id: number) {
+  const confirmed = window.confirm('确定要删除这条留言吗？');
+  if (!confirmed) return;
 
-    setDeletingId(id);
+  setDeletingId(id);
 
-    try {
-      const res = await fetch('/api/messages', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ id }),
-      });
+  try {
+    // ✅ 改用 URL 查询参数传递 ID
+    const res = await fetch(`/api/messages?id=${id}`, {
+      method: 'DELETE',
+      headers: { 
+        'Accept': 'application/json'
+      },
+      // ✅ 删除 body，不再发送 JSON
+    });
 
-      if (!res.ok) {
-        const errorText = await res.text();
-        throw new Error(`HTTP ${res.status}: ${errorText}`);
-      }
-
-      setMessages(prev => prev.filter(msg => msg.id !== id));
-    } catch (error: any) {
-      console.error('Delete error:', error);
-      alert(`删除失败: ${error.message || '未知错误'}`);
-    } finally {
-      setDeletingId(null);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(errorData.error || `HTTP ${res.status}`);
     }
+
+    setMessages(prev => prev.filter(msg => msg.id !== id));
+  } catch (error: any) {
+    console.error('Delete error:', error);
+    alert(`删除失败: ${error.message || '未知错误'}`);
+  } finally {
+    setDeletingId(null);
   }
+}
+
 
   return (
     <div className="p-4 sm:p-8 max-w-2xl mx-auto">

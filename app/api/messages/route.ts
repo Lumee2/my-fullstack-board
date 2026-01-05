@@ -38,10 +38,12 @@ export async function POST(request: Request) {
   }
 }
 
-// ✅ 这里就是第二步的代码（带详细错误日志）
+// 将 ID 从 URL 查询参数读取，而不是 body
 export async function DELETE(request: Request) {
   try {
-    const { id } = await request.json();
+    // ✅ 从 URL 查询参数读取 ID
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
     
     if (!id) {
       return Response.json({ error: 'ID is required' }, { status: 400 });
@@ -49,7 +51,7 @@ export async function DELETE(request: Request) {
     
     await initDB();
     
-    // 先检查记录是否存在（方便调试）
+    // 检查记录是否存在
     const check = await sql`SELECT 1 FROM messages WHERE id = ${id}`;
     if (check.length === 0) {
       return Response.json({ error: 'Message not found' }, { status: 404 });
@@ -60,10 +62,10 @@ export async function DELETE(request: Request) {
     return Response.json({ success: true });
   } catch (error: any) {
     console.error('DELETE error:', error);
-    // 返回详细错误信息
     return Response.json({ 
       error: error.message || 'Failed to delete message',
       details: error.toString() 
     }, { status: 500 });
   }
 }
+
