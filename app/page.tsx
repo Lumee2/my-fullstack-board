@@ -13,7 +13,6 @@ export default function Home() {
   const [input, setInput] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
 
-  // 页面加载时获取留言
   useEffect(() => {
     fetchMessages();
   }, []);
@@ -21,14 +20,15 @@ export default function Home() {
   async function fetchMessages() {
     try {
       const res = await fetch('/api/messages');
+      if (!res.ok) throw new Error('Failed to fetch');
       const data = await res.json();
       setMessages(data);
     } catch (error) {
       console.error('Failed to fetch messages:', error);
+      alert('加载留言失败');
     }
   }
 
-  // 提交新留言
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!input.trim()) return;
@@ -39,21 +39,26 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ text: input }),
       });
+      
+      if (!res.ok) throw new Error('Failed to create');
       const newMessage = await res.json();
       
-      setMessages(prev => [newMessage, ...prev]); // 新留言放最前面
+      setMessages(prev => [newMessage, ...prev]);
       setInput('');
     } catch (error) {
       console.error('Failed to create message:', error);
-      alert('发布失败，请重试');
+      alert('发布失败，请检查网络');
     }
   }
 
-  // 删除留言
+  // 简化删除逻辑：直接使用 confirm()
   async function handleDelete(id: number) {
-    if (!confirm('确定要删除这条留言吗？')) return;
+    // 兼容所有浏览器的同步确认
+    const confirmed = window.confirm('确定要删除这条留言吗？');
+    if (!confirmed) return;
 
     setDeletingId(id);
+
     try {
       const res = await fetch('/api/messages', {
         method: 'DELETE',
@@ -61,22 +66,23 @@ export default function Home() {
         body: JSON.stringify({ id }),
       });
 
-      if (res.ok) {
-        setMessages(prev => prev.filter(msg => msg.id !== id));
-      } else {
-        alert('删除失败');
+      if (!res.ok) {
+        const errorText = await res.text();
+        throw new Error(`HTTP ${res.status}: ${errorText}`);
       }
+
+      setMessages(prev => prev.filter(msg => msg.id !== id));
     } catch (error) {
-      console.error('Failed to delete message:', error);
-      alert('删除失败');
+      console.error('Delete error:', error);
+      alert(`删除失败: ${error.message || '未知错误'}`);
     } finally {
       setDeletingId(null);
     }
   }
 
   return (
-    <div className="p-8 max-w-2xl mx-auto">
-      <h1 className="text-3xl font-bold mb-6">我的留言板</h1>
+    <div className="p-4 sm:p-8 max-w-2xl mx-auto">
+      <h1 className="text-2xl sm:text-3xl font-bold mb-6">我的留言板</h1>
       
       {/* 发布表单 */}
       <form onSubmit={handleSubmit} className="mb-6">
@@ -111,7 +117,7 @@ export default function Home() {
               <button
                 onClick={() => handleDelete(msg.id)}
                 disabled={deletingId === msg.id}
-                className="ml-4 px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 disabled:opacity-50"
+                className="ml-3 px-3 py-1 bg-red-500 text-white text-sm rounded hover:bg-red-600 disabled:opacity-50 min-w-[60px]"
               >
                 {deletingId === msg.id ? '删除中...' : '删除'}
               </button>
