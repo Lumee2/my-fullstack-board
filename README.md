@@ -34,3 +34,23 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+## Deployment & required secrets
+
+This project is intended to be deployed on Vercel. When deploying or running CI, set the following repository or project secrets:
+
+- `DATABASE_URL` — Postgres connection string (Neon or other provider), e.g. `postgres://user:pass@host:5432/db`.
+- `GITHUB_ID` and `GITHUB_SECRET` — GitHub OAuth app credentials used by `next-auth`.
+- `VERCEL_TOKEN`, `VERCEL_ORG_ID`, `VERCEL_PROJECT_ID` — (optional) required by the provided Vercel deploy workflow.
+
+Local build and verification commands (run in project root):
+
+```bash
+npm ci
+npm run build
+```
+
+Notes:
+- The repo includes example workflows: `.github/workflows/ci.yml` (build + secrets check) and `.github/workflows/vercel-deploy.yml` (push-to-main deploy using Vercel token).
+- Keep `DATABASE_URL` only in GitHub Secrets / Vercel Environment Variables; never expose it to the client or commit it to source.
+
